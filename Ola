@@ -1,0 +1,201 @@
+CREATE DATABASE ola;
+USE ola;
+-- Create the Drivers table
+CREATE TABLE Drivers_table(
+    DriverID INT AUTO_INCREMENT PRIMARY KEY,
+    FirstName VARCHAR(100) NOT NULL,
+    LastName VARCHAR(100) NOT NULL,
+    Phone VARCHAR(15) NOT NULL,
+    City VARCHAR(100) NOT NULL,
+    VehicleType VARCHAR(50) NOT NULL,
+    Rating DECIMAL(2, 1) NOT NULL
+);
+
+-- Create the Riders table
+CREATE TABLE Riders_table(
+    RiderID INT AUTO_INCREMENT PRIMARY KEY,
+    FirstName VARCHAR(100) NOT NULL,
+    LastName VARCHAR(100) NOT NULL,
+    Phone VARCHAR(15) NOT NULL,
+    City VARCHAR(100) NOT NULL,
+    JoinDate DATE NOT NULL
+);
+
+-- Create the Rides table
+CREATE TABLE Rides_table(
+    RideID INT AUTO_INCREMENT PRIMARY KEY,
+    RiderID INT NOT NULL,
+    DriverID INT NOT NULL,
+    RideDate DATE NOT NULL,
+    PickupLocation VARCHAR(255) NOT NULL,
+    DropLocation VARCHAR(255) NOT NULL,
+    Distance DECIMAL(5, 2) NOT NULL,
+    Fare DECIMAL(10, 2) NOT NULL,
+    RideStatus VARCHAR(20) NOT NULL,
+    FOREIGN KEY (RiderID) REFERENCES Riders_table(RiderID),
+    FOREIGN KEY (DriverID) REFERENCES Drivers_table(DriverID)
+);
+
+-- Create the Payments table
+CREATE TABLE Payments_table(
+    PaymentID INT AUTO_INCREMENT PRIMARY KEY,
+    RideID INT NOT NULL,
+    PaymentMethod VARCHAR(50) NOT NULL,
+    Amount DECIMAL(10, 2) NOT NULL,
+    PaymentDate DATE NOT NULL,
+    FOREIGN KEY (RideID) REFERENCES Rides_table(RideID)
+);
+
+-- Insert data into Drivers table
+INSERT INTO Drivers_table(FirstName, LastName, Phone, City, VehicleType, Rating) VALUES
+('John', 'Doe', '1234567890', 'New York', 'Sedan', 4.5),
+('Jane', 'Smith', '0987654321', 'Los Angeles', 'SUV', 4.7),
+('Mike', 'Brown', '1112223333', 'Chicago', 'Hatchback', 4.2),
+('Emily', 'Davis', '4445556666', 'Houston', 'Sedan', 4.8),
+('Chris', 'Wilson', '7778889999', 'Phoenix', 'SUV', 4.3),
+('Sophia', 'Taylor', '1231231234', 'San Diego', 'Hatchback', 4.1),
+('Liam', 'Anderson', '4564564567', 'Dallas', 'Sedan', 4.6),
+('Olivia', 'Thomas', '7897897890', 'Austin', 'SUV', 4.4);
+
+-- Insert data into Riders table
+INSERT INTO Riders_table(FirstName, LastName, Phone, City, JoinDate) VALUES
+('Emma', 'Johnson', '1122334455', 'New York', '2023-01-01'),
+('Noah', 'Martinez', '2233445566', 'Los Angeles', '2023-02-15'),
+('Ava', 'Garcia', '3344556677', 'Chicago', '2023-03-10'),
+('William', 'Lopez', '4455667788', 'Houston', '2023-04-25'),
+('Sophia', 'Harris', '5566778899', 'Phoenix', '2023-05-30'),
+('James', 'Clark', '6677889900', 'San Diego', '2023-06-20'),
+('Isabella', 'Lewis', '7788990011', 'Dallas', '2023-07-15'),
+('Mason', 'Robinson', '8899001122', 'Austin', '2023-08-05');
+
+-- Insert data into Rides table
+INSERT INTO Rides_table(RiderID, DriverID, RideDate, PickupLocation, DropLocation, Distance, Fare, RideStatus) VALUES
+(1, 1, '2023-09-01', 'Downtown', 'Uptown', 12.5, 25.00, 'Completed'),
+(2, 2, '2023-09-02', 'Airport', 'Hotel', 8.0, 18.50, 'Completed'),
+(3, 3, '2023-09-03', 'Mall', 'Park', 5.5, 12.00, 'Cancelled'),
+(4, 4, '2023-09-04', 'University', 'Library', 3.0, 8.00, 'Completed'),
+(5, 5, '2023-09-05', 'Home', 'Office', 10.0, 22.50, 'Completed'),
+(6, 6, '2023-09-06', 'Station', 'Museum', 4.5, 10.00, 'Ongoing'),
+(7, 7, '2023-09-07', 'Cafe', 'Gym', 6.5, 15.00, 'Completed'),
+(8, 8, '2023-09-08', 'Beach', 'Hotel', 9.0, 20.00, 'Completed');
+
+-- Insert data into Payments table
+INSERT INTO Payments_table(RideID, PaymentMethod, Amount, PaymentDate) VALUES
+(1, 'Card', 25.00, '2023-09-01'),
+(2, 'Cash', 18.50, '2023-09-02'),
+(4, 'Wallet', 8.00, '2023-09-04'),
+(5, 'Card', 22.50, '2023-09-05'),
+(7, 'Cash', 15.00, '2023-09-07'),
+(8, 'Wallet', 20.00, '2023-09-08');
+
+
+=======================================================================================================
+
+1. Retrieve the names and contact details of all drivers with a rating of 4.5 or higher.
+
+SELECT FirstName, LastName, Phone, City, VehicleType, Rating
+FROM Drivers_table
+WHERE Rating >= 4.5;
+
+=======================================================================================================
+
+
+2. Find the total number of rides completed by each driver.
+
+SELECT d.FirstName, d.LastName, COUNT(r.RideID) AS TotalRides
+FROM Drivers_table d
+JOIN Rides_table r ON d.DriverID = r.DriverID
+WHERE r.RideStatus = 'Completed'
+GROUP BY d.DriverID;
+
+=======================================================================================================
+
+
+3. List all riders who have never booked a ride.
+
+SELECT r.FirstName, r.LastName
+FROM Riders_table r
+LEFT JOIN Rides_table ri ON r.RiderID = ri.RiderID
+WHERE ri.RideID IS NULL;
+
+=======================================================================================================
+
+
+4. Calculate the total earnings of each driver from completed rides.
+
+SELECT d.FirstName, d.LastName, SUM(p.Amount) AS TotalEarnings
+FROM Drivers_table d
+JOIN Rides_table r ON d.DriverID = r.DriverID
+JOIN Payments_table p ON r.RideID = p.RideID
+WHERE r.RideStatus = 'Completed'
+GROUP BY d.DriverID;
+
+=======================================================================================================
+
+
+5. Retrieve the most recent ride for each rider.
+
+SELECT r.FirstName, r.LastName, rt.RideDate, rt.PickupLocation, rt.DropLocation
+FROM Riders_table r
+JOIN (
+    SELECT RiderID, MAX(RideDate) AS LatestRide
+    FROM Rides_table
+    GROUP BY RiderID
+) AS latest_rides ON r.RiderID = latest_rides.RiderID
+JOIN Rides_table rt ON latest_rides.RiderID = rt.RiderID AND latest_rides.LatestRide = rt.RideDate;
+
+=======================================================================================================
+
+
+6. Count the number of rides taken in each city.
+
+SELECT r.City, COUNT(rt.RideID) AS TotalRides
+FROM Rides_table rt
+JOIN Riders_table r ON rt.RiderID = r.RiderID
+GROUP BY r.City;
+
+=======================================================================================================
+
+
+7. List all rides where the distance was greater than 20 km.
+
+SELECT * FROM Rides_table
+WHERE Distance > 20;
+
+=======================================================================================================
+
+
+8. Identify the most preferred payment method.
+
+SELECT PaymentMethod, COUNT(PaymentID) AS PreferenceCount
+FROM Payments_table
+GROUP BY PaymentMethod
+ORDER BY PreferenceCount DESC
+LIMIT 1;
+
+=======================================================================================================
+
+
+9. Find the top 3 highest-earning drivers.
+
+SELECT d.FirstName, d.LastName, SUM(p.Amount) AS TotalEarnings
+FROM Drivers_table d
+JOIN Rides_table r ON d.DriverID = r.DriverID
+JOIN Payments_table p ON r.RideID = p.RideID
+WHERE r.RideStatus = 'Completed'
+GROUP BY d.DriverID
+ORDER BY TotalEarnings DESC
+LIMIT 3;
+
+=======================================================================================================
+
+
+10. Retrieve details of all cancelled rides along with the rider's and driver's names.
+
+SELECT r.FirstName AS RiderFirstName, r.LastName AS RiderLastName, d.FirstName AS DriverFirstName, d.LastName AS DriverLastName, rt.RideDate, rt.PickupLocation, rt.DropLocation
+FROM Rides_table rt
+JOIN Riders_table r ON rt.RiderID = r.RiderID
+JOIN Drivers_table d ON rt.DriverID = d.DriverID
+WHERE rt.RideStatus = 'Cancelled';
+
+=======================================================================================================
