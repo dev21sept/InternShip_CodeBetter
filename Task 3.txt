@@ -1,0 +1,180 @@
+------------------------------------------------------------------------------------------
+
+CREATE DATABASE RetailStore;
+USE RetailStore;
+
+-- Customers Table
+CREATE TABLE Customers (
+    customer_id INT PRIMARY KEY AUTO_INCREMENT,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    email VARCHAR(100) UNIQUE,
+    phone VARCHAR(20),
+    address TEXT,
+    join_date DATE
+);
+
+-- Products Table
+CREATE TABLE Products (
+    product_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_name VARCHAR(100),
+    category VARCHAR(50),
+    price DECIMAL(10,2),
+    stock_quantity INT
+);
+
+-- Orders Table
+CREATE TABLE Orders (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    customer_id INT,
+    order_date DATE,
+    total_amount DECIMAL(10,2),
+    order_status VARCHAR(20),
+    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)
+);
+
+-- OrderDetails Table
+CREATE TABLE OrderDetails (
+    order_detail_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT,
+    product_id INT,
+    quantity INT,
+    unit_price DECIMAL(10,2),
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES Products(product_id)
+);
+
+-- Payments Table
+CREATE TABLE Payments (
+    payment_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT,
+    payment_date DATE,
+    payment_amount DECIMAL(10,2),
+    payment_method VARCHAR(20),
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id)
+);
+
+----------------------------------------------------------------------------
+ Inserting Sample Data
+Customers
+
+INSERT INTO Customers (first_name, last_name, email, phone, address, join_date) VALUES
+('John', 'Doe', 'johndoe@example.com', '123-456-7890', '123 Main St, NY', '2024-01-15'),
+('Jane', 'Smith', 'janesmith@example.com', '456-789-0123', '456 Oak St, CA', '2023-12-10'),
+('Alice', 'Brown', 'alicebrown@example.com', '789-012-3456', '789 Pine St, TX', '2024-02-05'),
+('Bob', 'White', 'bobwhite@example.com', '345-678-9012', '101 Maple St, FL', '2023-11-20'),
+('Emma', 'Wilson', 'emmawilson@example.com', '678-901-2345', '202 Birch St, WA', '2024-03-01');
+
+Products
+
+INSERT INTO Products (product_name, category, price, stock_quantity) VALUES
+('Laptop', 'Electronics', 1200.00, 10),
+('Smartphone', 'Electronics', 800.00, 15),
+('Tablet', 'Electronics', 500.00, 20),
+('Headphones', 'Accessories', 150.00, 30),
+('Keyboard', 'Accessories', 50.00, 50);
+
+Orders
+
+INSERT INTO Orders (customer_id, order_date, total_amount, order_status) VALUES
+(1, '2024-03-10', 1350.00, 'Shipped'),
+(2, '2024-03-12', 800.00, 'Pending'),
+(3, '2024-03-14', 500.00, 'Shipped'),
+(4, '2024-03-15', 150.00, 'Pending'),
+(5, '2024-03-16', 50.00, 'Shipped');
+
+OrderDetails
+
+INSERT INTO OrderDetails (order_id, product_id, quantity, unit_price) VALUES
+(1, 1, 1, 1200.00),
+(1, 4, 1, 150.00),
+(2, 2, 1, 800.00),
+(3, 3, 1, 500.00),
+(4, 4, 1, 150.00),
+(5, 5, 1, 50.00);
+
+Payments
+
+INSERT INTO Payments (order_id, payment_date, payment_amount, payment_method) VALUES
+(1, '2024-03-11', 1350.00, 'Credit Card'),
+(2, '2024-03-12', 800.00, 'PayPal'),
+(3, '2024-03-14', 500.00, 'Debit Card'),
+(4, '2024-03-15', 150.00, 'Credit Card'),
+(5, '2024-03-16', 50.00, 'Cash');
+
+--------------------------------------------------------------------------------------------
+
+1. Find the Total Number of Orders for Each Customer
+
+SELECT c.customer_id, c.first_name, c.last_name, COUNT(o.order_id) AS total_orders
+FROM Customers c
+LEFT JOIN Orders o ON c.customer_id = o.customer_id
+GROUP BY c.customer_id, c.first_name, c.last_name;
+
+2. Find the Total Sales Amount for Each Product (Revenue per Product)
+
+SELECT p.product_id, p.product_name, SUM(od.quantity * od.unit_price) AS total_revenue
+FROM OrderDetails od
+JOIN Products p ON od.product_id = p.product_id
+GROUP BY p.product_id, p.product_name
+ORDER BY total_revenue DESC;
+
+ 3. Find the Most Expensive Product Sold
+ 
+SELECT p.product_id, p.product_name, MAX(od.unit_price) AS highest_price_sold
+FROM OrderDetails od
+JOIN Products p ON od.product_id = p.product_id
+GROUP BY p.product_id, p.product_name
+ORDER BY highest_price_sold DESC
+LIMIT 1;
+
+ 4. Get the List of Customers Who Have Placed Orders in the Last 30 Days
+ 
+SELECT DISTINCT c.customer_id, c.first_name, c.last_name
+FROM Customers c
+JOIN Orders o ON c.customer_id = o.customer_id
+WHERE o.order_date >= CURDATE() - INTERVAL 30 DAY;
+
+5. Calculate the Total Amount Paid by Each Customer
+
+SELECT c.customer_id, c.first_name, c.last_name, SUM(p.payment_amount) AS total_paid
+FROM Customers c
+JOIN Orders o ON c.customer_id = o.customer_id
+JOIN Payments p ON o.order_id = p.order_id
+GROUP BY c.customer_id, c.first_name, c.last_name
+ORDER BY total_paid DESC;
+
+6. Get the Number of Products Sold by Category
+
+SELECT p.category, SUM(od.quantity) AS total_sold
+FROM OrderDetails od
+JOIN Products p ON od.product_id = p.product_id
+GROUP BY p.category
+ORDER BY total_sold DESC;
+
+7. List All Orders That Are Pending (i.e., Orders that haven't been shipped yet)
+
+SELECT order_id, customer_id, order_date, total_amount
+FROM Orders
+WHERE order_status = 'Pending';
+
+ 8. Find the Average Order Value (Total Order Amount / Number of Orders)
+ 
+SELECT AVG(total_amount) AS average_order_value
+FROM Orders;
+
+9. List the Top 5 Customers Who Have Spent the Most Money
+
+SELECT c.customer_id, c.first_name, c.last_name, SUM(o.total_amount) AS total_spent
+FROM Customers c
+JOIN Orders o ON c.customer_id = o.customer_id
+GROUP BY c.customer_id, c.first_name, c.last_name
+ORDER BY total_spent DESC
+LIMIT 5;
+
+ 10. Find the Products That Have Never Been Sold
+ 
+SELECT p.product_id, p.product_name
+FROM Products p
+LEFT JOIN OrderDetails od ON p.product_id = od.product_id
+WHERE od.product_id IS NULL;

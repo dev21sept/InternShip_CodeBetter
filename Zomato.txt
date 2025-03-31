@@ -1,0 +1,202 @@
+ Create Tables
+
+CREATE TABLE Restaurants (
+    RestaurantID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    City VARCHAR(50),
+    CuisineType VARCHAR(50),
+    Rating DECIMAL(2,1),
+    AverageCostForTwo DECIMAL(10,2)
+);
+
+CREATE TABLE Customers (
+    CustomerID INT PRIMARY KEY,
+    FirstName VARCHAR(50),
+    LastName VARCHAR(50),
+    Phone VARCHAR(15),
+    City VARCHAR(50),
+    JoinDate DATE
+);
+
+CREATE TABLE Orders (
+    OrderID INT PRIMARY KEY,
+    CustomerID INT,
+    RestaurantID INT,
+    OrderDate DATE,
+    OrderAmount DECIMAL(10,2),
+    OrderStatus VARCHAR(20),
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID),
+    FOREIGN KEY (RestaurantID) REFERENCES Restaurants(RestaurantID)
+);
+
+CREATE TABLE Reviews (
+    ReviewID INT PRIMARY KEY,
+    CustomerID INT,
+    RestaurantID INT,
+    Rating DECIMAL(2,1),
+    Comment TEXT,
+    ReviewDate DATE,
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID),
+    FOREIGN KEY (RestaurantID) REFERENCES Restaurants(RestaurantID)
+);
+
+CREATE TABLE Payments (
+    PaymentID INT PRIMARY KEY,
+    OrderID INT,
+    PaymentMethod VARCHAR(50),
+    Amount DECIMAL(10,2),
+    PaymentDate DATE,
+    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID)
+);
+
+
+ Insert Data into Restaurants Table
+
+INSERT INTO Restaurants (RestaurantID, Name, City, CuisineType, Rating, AverageCostForTwo) VALUES
+(1, 'Spicy Indian', 'Mumbai', 'Indian', 4.7, 800),
+(2, 'Pasta Heaven', 'Delhi', 'Italian', 4.5, 1200),
+(3, 'Dragon Wok', 'Bangalore', 'Chinese', 4.6, 1000),
+(4, 'Tandoori Flames', 'Mumbai', 'Indian', 4.4, 900),
+(5, 'Pizza Corner', 'Chennai', 'Italian', 4.3, 850),
+(6, 'Sushi Delight', 'Delhi', 'Japanese', 4.8, 1500),
+(7, 'Burger Hub', 'Bangalore', 'American', 4.2, 750),
+(8, 'Biryani House', 'Hyderabad', 'Indian', 4.7, 950),
+(9, 'Steak World', 'Pune', 'American', 4.5, 1400),
+(10, 'Noodle House', 'Kolkata', 'Chinese', 4.3, 1100),
+(11, 'BBQ Nation', 'Chennai', 'Indian', 4.6, 1300),
+(12, 'The Great Kebab', 'Mumbai', 'Indian', 4.8, 1600),
+(13, 'Italian Treats', 'Pune', 'Italian', 4.1, 1000),
+(14, 'Wok Express', 'Bangalore', 'Chinese', 4.2, 950),
+(15, 'French Delicacies', 'Delhi', 'French', 4.7, 1800);
+
+ Insert Data into Customers Table
+
+INSERT INTO Customers (CustomerID, FirstName, LastName, Phone, City, JoinDate) VALUES
+(1, 'Amit', 'Sharma', '9876543210', 'Mumbai', '2023-01-05'),
+(2, 'Neha', 'Verma', '8765432109', 'Delhi', '2022-06-15'),
+(3, 'Rahul', 'Mehta', '7654321098', 'Bangalore', '2023-02-20'),
+(4, 'Sonia', 'Kapoor', '6543210987', 'Mumbai', '2021-11-30'),
+(5, 'Karan', 'Malhotra', '5432109876', 'Chennai', '2022-07-12'),
+(6, 'Priya', 'Singh', '4321098765', 'Delhi', '2023-03-18'),
+(7, 'Vikram', 'Rao', '3210987654', 'Hyderabad', '2023-04-22'),
+(8, 'Sneha', 'Bose', '2109876543', 'Pune', '2022-09-10'),
+(9, 'Aditya', 'Chauhan', '1098765432', 'Kolkata', '2021-10-25'),
+(10, 'Meera', 'Iyer', '9988776655', 'Bangalore', '2023-05-01'),
+(11, 'Rajesh', 'Pillai', '8899776655', 'Mumbai', '2021-12-14'),
+(12, 'Simran', 'Goyal', '7788665544', 'Delhi', '2022-08-27'),
+(13, 'Aniket', 'Jha', '6677554433', 'Pune', '2023-06-19'),
+(14, 'Divya', 'Mishra', '5566443322', 'Bangalore', '2022-05-30'),
+(15, 'Gaurav', 'Desai', '4455332211', 'Kolkata', '2021-09-05');
+
+ Insert Data into Orders Table
+
+INSERT INTO Orders (OrderID, CustomerID, RestaurantID, OrderDate, OrderAmount, OrderStatus) VALUES
+(1, 1, 1, '2024-03-01', 1200, 'Delivered'),
+(2, 2, 2, '2024-03-02', 1500, 'Pending'),
+(3, 3, 3, '2024-03-03', 800, 'Cancelled'),
+(4, 4, 4, '2024-03-04', 1100, 'Delivered'),
+(5, 5, 5, '2024-03-05', 900, 'Delivered'),
+(6, 6, 6, '2024-03-06', 1700, 'Delivered'),
+(7, 7, 7, '2024-03-07', 700, 'Pending'),
+(8, 8, 8, '2024-03-08', 1300, 'Delivered'),
+(9, 9, 9, '2024-03-09', 1400, 'Cancelled'),
+(10, 10, 10, '2024-03-10', 1250, 'Delivered'),
+(11, 11, 11, '2024-03-11', 1600, 'Delivered'),
+(12, 12, 12, '2024-03-12', 2000, 'Pending'),
+(13, 13, 13, '2024-03-13', 1100, 'Cancelled'),
+(14, 14, 14, '2024-03-14', 950, 'Delivered'),
+(15, 15, 15, '2024-03-15', 1850, 'Delivered');
+
+ Insert Data into Payments Table
+
+INSERT INTO Payments (PaymentID, OrderID, PaymentMethod, Amount, PaymentDate) VALUES
+(1, 1, 'Card', 1200, '2024-03-01'),
+(2, 4, 'Cash', 1100, '2024-03-04'),
+(3, 5, 'Wallet', 900, '2024-03-05'),
+(4, 6, 'Card', 1700, '2024-03-06'),
+(5, 8, 'Bank Transfer', 1300, '2024-03-08'),
+(6, 10, 'Wallet', 1250, '2024-03-10'),
+(7, 11, 'Card', 1600, '2024-03-11'),
+(8, 14, 'Cash', 950, '2024-03-14'),
+(9, 15, 'Wallet', 1850, '2024-03-15');
+
+
+
+1. Retrieve the names and locations of restaurants with a rating of 4.5 or higher.
+
+SELECT Name, City 
+FROM Restaurants 
+WHERE Rating >= 4.5;
+
+2. Find the total number of orders placed by each customer.
+
+SELECT c.CustomerID, c.FirstName, c.LastName, COUNT(o.OrderID) AS TotalOrders
+FROM Customers c
+LEFT JOIN Orders o ON c.CustomerID = o.CustomerID
+GROUP BY c.CustomerID, c.FirstName, c.LastName;
+
+3. List all restaurants offering "Italian" cuisine in "Mumbai".
+
+SELECT Name, City 
+FROM Restaurants 
+WHERE CuisineType = 'Italian' AND City = 'Mumbai';
+
+4. Calculate the total revenue generated by each restaurant from completed orders.
+
+SELECT r.Name, SUM(o.OrderAmount) AS TotalRevenue
+FROM Orders o
+JOIN Restaurants r ON o.RestaurantID = r.RestaurantID
+WHERE o.OrderStatus = 'Delivered'
+GROUP BY r.Name;
+
+5. Retrieve the most recent order placed by each customer.
+
+SELECT o.CustomerID, c.FirstName, c.LastName, o.OrderID, o.OrderDate, o.OrderAmount
+FROM Orders o
+JOIN Customers c ON o.CustomerID = c.CustomerID
+WHERE o.OrderDate = (
+    SELECT MAX(OrderDate) 
+    FROM Orders 
+    WHERE CustomerID = o.CustomerID
+);
+
+6. List customers who have not placed any orders yet.
+
+SELECT c.CustomerID, c.FirstName, c.LastName, c.Phone, c.City
+FROM Customers c
+LEFT JOIN Orders o ON c.CustomerID = o.CustomerID
+WHERE o.OrderID IS NULL;
+
+7. Identify the most reviewed restaurants.
+
+SELECT r.Name, COUNT(rev.ReviewID) AS TotalReviews
+FROM Reviews rev
+JOIN Restaurants r ON rev.RestaurantID = r.RestaurantID
+GROUP BY r.Name
+ORDER BY TotalReviews DESC;
+
+8. Find the most preferred payment method.
+
+SELECT PaymentMethod, COUNT(*) AS UsageCount
+FROM Payments
+GROUP BY PaymentMethod
+ORDER BY UsageCount DESC
+LIMIT 1;
+
+9. List the top 5 restaurants by total revenue.
+
+SELECT r.Name, SUM(o.OrderAmount) AS TotalRevenue
+FROM Orders o
+JOIN Restaurants r ON o.RestaurantID = r.RestaurantID
+WHERE o.OrderStatus = 'Delivered'
+GROUP BY r.Name
+ORDER BY TotalRevenue DESC
+LIMIT 5;
+
+10. Show the details of all cancelled orders along with the customer's and restaurant's names.
+
+SELECT o.OrderID, c.FirstName, c.LastName, r.Name AS RestaurantName, o.OrderDate, o.OrderAmount
+FROM Orders o
+JOIN Customers c ON o.CustomerID = c.CustomerID
+JOIN Restaurants r ON o.RestaurantID = r.RestaurantID
+WHERE o.OrderStatus = 'Cancelled';
